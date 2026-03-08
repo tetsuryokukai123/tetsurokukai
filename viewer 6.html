@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ファイルビューア — 鉄緑会</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --B:#1b5cb0;--BD:#154d99;
+  --F:'Hiragino Sans','Hiragino Kaku Gothic ProN','Yu Gothic','Meiryo',sans-serif;
+}
+html,body{
+  width:100%;height:100%;height:100dvh;
+  font-family:var(--F);background:#1a2233;
+  overflow:hidden;
+}
+#bar{
+  position:fixed;top:0;left:0;right:0;
+  height:52px;background:#1a2233;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;gap:12px;z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);
+}
+#bar-title{
+  color:#fff;font-size:14px;font-weight:700;flex:1;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.bar-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:7px 16px;border-radius:7px;border:none;
+  font-size:13px;font-weight:700;font-family:var(--F);
+  cursor:pointer;transition:background .14s;
+  text-decoration:none;line-height:1;white-space:nowrap;
+}
+.bar-btn-back{background:rgba(255,255,255,.18);color:#fff;}
+.bar-btn-back:hover{background:rgba(255,255,255,.28);}
+#main{
+  position:fixed;
+  top:52px;left:0;right:0;bottom:0;
+  display:flex;align-items:center;justify-content:center;
+  background:#525659;
+}
+#pdf-object{width:100%;height:100%;border:none;display:block;}
+#mobile-view{
+  display:none;
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:20px;padding:32px 24px;text-align:center;
+  width:100%;height:100%;
+}
+#mobile-view h2{color:#fff;font-size:18px;font-weight:800;}
+#mobile-view p{color:rgba(255,255,255,.7);font-size:14px;line-height:1.7;}
+.open-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 32px;background:var(--B);color:#fff;
+  border-radius:12px;text-decoration:none;
+  font-size:16px;font-weight:800;font-family:var(--F);
+  box-shadow:0 4px 16px rgba(27,92,176,.4);
+  transition:background .14s;
+}
+.open-btn:hover{background:var(--BD);}
+.open-btn svg{width:22px;height:22px;fill:#fff;}
+</style>
+</head>
+<body>
+
+<div id="bar">
+  <span id="bar-title">ファイルビューア</span>
+  <div style="display:flex;gap:8px;">
+    <a id="direct-link" class="bar-btn bar-btn-back" href="#" target="_blank" rel="noopener">↗ 別タブ</a>
+    <button class="bar-btn bar-btn-back" onclick="history.back()">← 戻る</button>
+  </div>
+</div>
+
+<div id="main">
+  <object id="pdf-object" type="application/pdf" data=""></object>
+  <div id="mobile-view">
+    <svg width="56" height="56" viewBox="0 0 24 24" fill="#fff" opacity=".6"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/></svg>
+    <h2 id="mobile-title">PDFファイル</h2>
+    <p>タップしてPDFを開いてください。<br>Safariの組み込みビューアで全画面表示されます。</p>
+    <a id="mobile-open" class="open-btn" href="#">
+      <svg viewBox="0 0 24 24"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/></svg>
+      PDFを開く
+    </a>
+  </div>
+</div>
+
+<script>
+(function(){
+  const params = new URLSearchParams(location.search);
+  const fileUrl = params.get('url');
+  const title   = params.get('title') || 'PDFファイル';
+
+  document.title = title + ' — 鉄緑会';
+  document.getElementById('bar-title').textContent = title;
+  document.getElementById('mobile-title').textContent = title;
+
+  if(!fileUrl){
+    document.getElementById('pdf-object').style.display = 'none';
+    document.getElementById('mobile-view').style.display = 'flex';
+    return;
+  }
+
+  document.getElementById('direct-link').href = fileUrl;
+  document.getElementById('mobile-open').href = fileUrl;
+
+  // iOS / iPadOS 判定
+  const isIOS = /iP(hone|od|ad)/.test(navigator.userAgent)
+             || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  if(isIOS){
+    // iOSはobjectタグ不可 → ボタンを押してSafariのネイティブPDFビューアで開く
+    document.getElementById('pdf-object').style.display = 'none';
+    document.getElementById('mobile-view').style.display = 'flex';
+  } else {
+    // PCはobjectタグで直接表示
+    document.getElementById('mobile-view').style.display = 'none';
+    document.getElementById('pdf-object').data = fileUrl;
+  }
+})();
+</script>
+</body>
+</html>
